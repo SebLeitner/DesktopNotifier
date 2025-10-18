@@ -5,6 +5,8 @@ using System.Net.Http.Json;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows;
+using DesktopNotifier.Logging;
 using DesktopNotifier.Models;
 
 namespace DesktopNotifier.Services;
@@ -31,15 +33,22 @@ public sealed class NotificationClient : IDisposable
         };
 
         _httpClient.DefaultRequestHeaders.Add("X-Client-Id", clientId);
+
+        Logger.LogInfo($"HTTP-Client initialisiert. Basis-URL: {_httpClient.BaseAddress}");
     }
 
     public async Task<IReadOnlyList<NotificationMessage>> FetchNotificationsAsync(CancellationToken cancellationToken)
     {
+        Logger.LogDebug("Starte HTTP-Abfrage 'notifications'.");
+
         using HttpResponseMessage response = await _httpClient.GetAsync("notifications", cancellationToken);
+        Logger.LogDebug($"Antwort erhalten: {(int)response.StatusCode} {response.ReasonPhrase}.");
         response.EnsureSuccessStatusCode();
 
         var payload = await response.Content.ReadFromJsonAsync<List<NotificationDto>>(SerializerOptions, cancellationToken)
                       ?? new List<NotificationDto>();
+
+        Logger.LogDebug($"Antwort enthält {payload.Count} Elemente.");
 
         List<NotificationMessage> notifications = new(payload.Count);
         foreach (NotificationDto dto in payload)
@@ -59,6 +68,7 @@ public sealed class NotificationClient : IDisposable
     public void Dispose()
     {
         _httpClient.Dispose();
+        Logger.LogDebug("HTTP-Client freigegeben.");
     }
 
     private sealed record NotificationDto
@@ -69,4 +79,6 @@ public sealed class NotificationClient : IDisposable
         public string? Text { get; init; }
         public DateTimeOffset? CreatedAt { get; init; }
     }
+
+    private static FileLogger Logger => ((App)Application.Current).Logger;
 }
