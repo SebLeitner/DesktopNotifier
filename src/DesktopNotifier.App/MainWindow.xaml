@@ -18,7 +18,7 @@
             <Button Content="Stop" Width="120" Click="OnStop"/>
             <TextBlock Margin="20,0,0,0" VerticalAlignment="Center">
                 <Run Text="Status:"/> <Run Text=" "/>
-                <Run Text="{Binding IsRunning, Converter={StaticResource BoolToStatusConverter}}"/>
+                <Run Text="{Binding IsRunning, Mode=OneWay, Converter={StaticResource BoolToStatusConverter}}"/>
             </TextBlock>
         </StackPanel>
 
