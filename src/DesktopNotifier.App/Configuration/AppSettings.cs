@@ -8,7 +8,7 @@ public sealed class AppSettings
     public required string ApiBaseUrl { get; init; }
     public required string ClientId { get; init; }
     public int PollingIntervalSeconds { get; init; } = 10;
-    public bool ShowDebugWindowOnStartup { get; init; }
+    public bool ShowDebugWindowOnStartup { get; init; } = true;
 
     public static AppSettings LoadFromFile(string path)
     {
